@@ -7,10 +7,19 @@
 namespace Local::Shed { class Engine {
 
 	private: unsigned long
-	Time;
+	Iter = 0;
 
 	private: unsigned long
-	TimePrev;
+	IterPrev = 0;
+
+	private: unsigned long
+	Time = 0;
+
+	private: unsigned long
+	TimePrev = 0;
+
+	private: unsigned long
+	TimeLast = 0;
 
 	private: Array<EngineTask*, 32>
 	Tasks;
@@ -59,8 +68,26 @@ namespace Local::Shed { class Engine {
 
 		EngineTask *EngTask = new EngineTask(Task, TimeInterval);
 
+		this->RemoveTask(Task);
+
 		(this->Tasks)
 		.push_back(EngTask);
+
+		return this;
+	};
+
+	public: Engine*
+	RemoveTask(Taskable* Task) {
+
+		size_t Iter = (this->Tasks).size();
+
+		while(Iter > 0) {
+			--Iter;
+
+			if(this->Tasks.at(Iter)->Task == Task) {
+				this->Tasks.remove(Iter);
+			}
+		}
 
 		return this;
 	};
@@ -76,26 +103,54 @@ namespace Local::Shed { class Engine {
 		EngineTask *EngTask;
 
 		this->Time = millis();
+		this->Iter += 1;
 
 		while(Iter < Max) {
 
 			EngTask = (this->Tasks).at(Iter);
 
 			if(EngTask->IsTime(this->Time)) {
-				#ifdef DEBUG_SHED_ENGINE_UPDATE
-				printf("[Shed::Engine::Update] Task ID: %d\n",Iter);
-				#endif
-
 				if(!EngTask->Update(this)) {
 					(this->Tasks).remove(Iter);
+
+					// since the task has been removed, all the
+					// tasks that came after have been promoted
+					// one slot. so we need to reduce the max
+					// and retry this iter.
+					Max--;
+					continue;
 				}
 			}
 
 			++Iter;
 		}
 
-		this->TimePrev = this->Time;
+		if((this->Iter % STATFPS) == 0) {
+			this->PrintStats();
+		}
+
+		this->TimeLast = this->Time;
 		return;
 	};
+
+	protected: void
+	PrintStats() {
+
+		unsigned long TimeDiff = this->Time - this->TimePrev;
+		unsigned long IterDiff = this->Iter - this->IterPrev;
+		float Framerate = ((float)IterDiff / (float)TimeDiff) * 1000;
+
+		printf(
+			"[Shed::Engine::Update] FPS=%.0f, Iter=%lu, Time=%lu, TimeDiff=%lu\n",
+			Framerate,
+			this->Iter,
+			this->Time,
+			TimeDiff
+		);
+
+		this->IterPrev = this->Iter;
+		this->TimePrev = this->Time;
+		return;
+	}
 
 }; };

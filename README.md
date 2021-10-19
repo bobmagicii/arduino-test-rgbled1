@@ -7,11 +7,11 @@ sligtly offset RGB Rainbow sequences forever.
 # Hardware
 
 * RGB LED 1
-	* Pins: 4, 5, 6
+	* Pins: 7, 6, 5
 	* Resistors: 1K (x3)
 
 * RGB LED 2
-	* Pins: 7, 8, 9
+	* Pins: 10, 9, 8
 	* Resistors: 1K (x3)
 
 # About

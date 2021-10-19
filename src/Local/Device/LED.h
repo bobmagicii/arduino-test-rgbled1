@@ -12,9 +12,6 @@ using RGB = Local::Util::RGB;
 
 namespace Local::Device { class LED: public Taskable {
 
-	private: LEDMode
-	Mode = LEDMode::Off;
-
 	private: Engine*
 	Sh;
 
@@ -27,6 +24,9 @@ namespace Local::Device { class LED: public Taskable {
 	private: int
 	PinBlu;
 
+	private: LEDMode
+	Mode = LEDMode::Off;
+
 	private: unsigned short
 	R = 0;
 
@@ -37,7 +37,7 @@ namespace Local::Device { class LED: public Taskable {
 	B = 0;
 
 	private: unsigned short
-	A = 64;
+	A = 128;
 
 	private: bool
 	Ready = FALSE;
@@ -133,7 +133,7 @@ namespace Local::Device { class LED: public Taskable {
 		// if we just iterated out of sequence range decide how to prepare
 		// for the next step.
 
-		if(this->SeqKey > this->SeqMax)
+		//if(this->SeqKey > this->SeqMax)
 		switch(this->Mode) {
 			case LEDMode::SequenceLoop:
 				#ifdef DEBUG_DEVICE_LED_SEQUENCE
@@ -178,6 +178,28 @@ namespace Local::Device { class LED: public Taskable {
 
 		return this->Mode == Mode;
 	};
+
+	public: LEDMode
+	GetMode() {
+
+		return this->Mode;
+	}
+
+	public: LED*
+	SetMode(LEDMode Mode) {
+
+		this->Mode = Mode;
+
+		switch(this->Mode) {
+			case LEDMode::Off:
+				this->SetRGBV(ColourArgvBlack);
+			break;
+			default:
+			break;
+		}
+
+		return this;
+	}
 
 	public: bool
 	IsOff() {

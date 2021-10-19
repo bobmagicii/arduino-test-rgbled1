@@ -1,7 +1,11 @@
 {
-    "configuration": "cpu=atmega2560",
     "board": "arduino:avr:mega",
+    "configuration": "cpu=atmega2560",
     "port": "COM3",
     "sketch": "rgb.ino",
-    "output": "build"
+    "output": "build",
+    "buildPreferences": [
+        [ "build.extra_flags", "" ],
+        [ "compiler.cpp.extra_flags", " \"-I{workspaceFolder}\\src\" " ]
+    ]
 }
